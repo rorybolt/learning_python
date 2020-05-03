@@ -82,14 +82,6 @@ def getLongestCDS(seq):
     orfs.sort()
     return orfs[-1]
 
-pairs = dict({'A':'T','C':'G','G':'C','T':'A','*':'*'})
-
-def makePartner(seq):
-    partner = []
-    for c in seq:
-        partner.append(pairs[c])
-    return ''.join(partner)
-
 def printProtein(cds, seq):
     protein = []
     for i in range(cds[1],cds[1]+cds[0],3):
@@ -100,10 +92,15 @@ def printProtein(cds, seq):
 
 assert(len(sys.argv)==2)
 
+inverse = dict({ord('A'):ord('T'),
+                ord('C'):ord('G'),
+                ord('G'):ord('C'),
+                ord('T'):ord('A')})
+
 for name, seq in read_fasta(sys.argv[1]):
     print(f'>{name}')
     cds = getLongestCDS(seq)
-    partner = makePartner(seq)
+    partner = seq.translate(inverse)
     partner_cds = getLongestCDS(partner)
     if partner_cds[0] > cds[0]:
         printProtein(partner_cds, partner)
