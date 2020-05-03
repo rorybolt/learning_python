@@ -55,6 +55,13 @@ AAtable = dict({
     'GGT':'G', 'GGC':'G', 'GGA':'G', 'GGG':'G'
 })
 
+def printProtein(cds, seq):
+    protein = []
+    for i in range(cds[1],cds[1]+cds[0],3):
+        codon = seq[i:i+3]
+        protein.append(AAtable[codon])
+    print(''.join(protein))
+
 def getStart(seq, frame):
     for i in range(frame, len(seq) -frame -2, 3):
         codon = seq[i:i+3]
@@ -75,16 +82,33 @@ def getLongestCDS(seq):
     orfs.sort()
     return orfs[-1]
 
-assert(len(sys.argv)==2)
+pairs = dict({'A':'T','C':'G','G':'C','T':'A','*':'*'})
 
-for name, seq in read_fasta(sys.argv[1]):
-    print(f'>{name}')
-    cds = getLongestCDS(seq)
+def makePartner(seq):
+    partner = []
+    for c in seq:
+        partner.append(pairs[c])
+    return ''.join(partner)
+
+def printProtein(cds, seq):
     protein = []
     for i in range(cds[1],cds[1]+cds[0],3):
         codon = seq[i:i+3]
         protein.append(AAtable[codon])
     print(''.join(protein))
+
+
+assert(len(sys.argv)==2)
+
+for name, seq in read_fasta(sys.argv[1]):
+    print(f'>{name}')
+    cds = getLongestCDS(seq)
+    partner = makePartner(seq)
+    partner_cds = getLongestCDS(partner)
+    if partner_cds[0] > cds[0]:
+        printProtein(partner_cds, partner)
+    else:
+        printProtein(cds,seq)
 
 """
 python3 longest_orf.py transcripts.fasta.gz
