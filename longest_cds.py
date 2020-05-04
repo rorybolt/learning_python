@@ -56,11 +56,11 @@ AAtable = dict({
 })
 
 def printProtein(cds, seq):
-    protein = []
+    protein = "" 
     for i in range(cds[1],cds[1]+cds[0],3):
         codon = seq[i:i+3]
-        protein.append(AAtable[codon])
-    print(''.join(protein))
+        protein += AAtable[codon]
+    print(protein)
 
 def getStart(seq, frame):
     for i in range(frame, len(seq) -frame -2, 3):
@@ -82,20 +82,12 @@ def getLongestCDS(seq):
     orfs.sort()
     return orfs[-1]
 
-def printProtein(cds, seq):
-    protein = []
-    for i in range(cds[1],cds[1]+cds[0],3):
-        codon = seq[i:i+3]
-        protein.append(AAtable[codon])
-    print(''.join(protein))
-
-
 assert(len(sys.argv)==2)
 
-inverse = dict({ord('A'):ord('T'),
-                ord('C'):ord('G'),
-                ord('G'):ord('C'),
-                ord('T'):ord('A')})
+inverse = dict({ord('A'):'T',
+                ord('C'):'G',
+                ord('G'):'C',
+                ord('T'):'A'})
 
 for name, seq in read_fasta(sys.argv[1]):
     print(f'>{name}')
