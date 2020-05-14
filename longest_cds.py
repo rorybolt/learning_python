@@ -36,7 +36,7 @@ def read_fasta(filename):
     yield(name, ''.join(seqs))
     fp.close()
 
-AAtable = dict({
+AAtable = { 
     'TTT':'F', 'TTC':'F', 'TTA':'L', 'TTG':'L',
     'CTT':'F', 'CTC':'F', 'CTA':'L', 'CTG':'L',
     'ATT':'I', 'ATC':'I', 'ATA':'I', 'ATG':'M',
@@ -53,7 +53,7 @@ AAtable = dict({
     'CGT':'R', 'CGC':'R', 'CGA':'R', 'CGG':'R',
     'AGT':'S', 'AGC':'S', 'AGA':'R', 'AGG':'R',
     'GGT':'G', 'GGC':'G', 'GGA':'G', 'GGG':'G'
-})
+}
 
 def printProtein(cds, seq):
     protein = "" 
@@ -84,10 +84,7 @@ def getLongestCDS(seq):
 
 assert(len(sys.argv)==2)
 
-inverse = dict({ord('A'):'T',
-                ord('C'):'G',
-                ord('G'):'C',
-                ord('T'):'A'})
+inverse = {ord('A'):'T', ord('C'):'G', ord('G'):'C', ord('T'):'A'}
 
 for name, seq in read_fasta(sys.argv[1]):
     print(f'>{name}')
