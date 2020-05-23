@@ -92,7 +92,7 @@ def entropy_fast(seq, w, th):
 	# in the for statement. Since seq is not altered, len(seq) only
 	# needs to be computed once
 	# gcc would have done this for you...
-	l = len(seq) - w + 1
+	l = len(seq)
 	for i in range(w,l):		# advance the window
 		num[seq[i]] += 1	# entering window
 		num[seq[i - w]] -= 1	# leaving window
@@ -142,8 +142,8 @@ def entropy_fast(seq, w, th):
 	t1 = time.perf_counter()
 	return low_H_count, t1-t0
 
-# random.seed(0)
 # create a random chromosome
+# random.seed(0)
 seq = []
 alph = ['A', 'C', 'G', 'T']
 for i in range(int(1e5)):
@@ -159,8 +159,8 @@ for w in W:
 	print(tf / ts)
 """
 	atf = tf
-	for i in range(49):
+	for i in range(99):
 		cf, tf = entropy_fast(seq, w, 1)
 		atf += tf
-	print((atf/50) / ts)
+	print((atf/100) / ts)
 """
