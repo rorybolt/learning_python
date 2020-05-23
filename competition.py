@@ -38,28 +38,48 @@ def entropy_fast(seq, w, th):
 	low_H_count = 0
 	
 	num = {"A":0,"C":0,"G":0,"T":0}
+	has = {"A":0,"C":0,"G":0,"T":0}
 	for i in range(w):
 		num[seq[i]] += 1
 	for i in range(w,len(seq) - w + 1):
 		num[seq[i]] += 1
-		# Adjust for nt leaving window
 		num[seq[i - w]] -= 1
             
 		h = 0
 		a, c, g, t = num['A'], num['C'], num['G'], num['T']
 	
 		if a != 0: 
-			pa = a/w
-			h -= pa * math.log2(pa)
+			if a in has:
+				h -= has[a]
+			else:
+				p = a/w
+				hp = p * math.log2(p)
+				has[a] = hp
+				h -= hp
 		if c != 0: 
-			pc = c/w
-			h -= pc * math.log2(pc)
+			if c in has:
+				h -= has[c]
+			else:
+				p = c/w
+				hp = p * math.log2(p)
+				has[c] = hp
+				h -= hp
 		if g != 0: 
-			pg = g/w
-			h -= pg * math.log2(pg)
+			if g in has:
+				h -= has[g]
+			else:
+				p = g/w
+				hp = p * math.log2(p)
+				has[g] = hp
+				h -= hp
 		if t != 0: 
-			pt = t/w
-			h -= pt * math.log2(pt)
+			if t in has:
+				h -= has[t]
+			else:
+				p = t/w
+				hp = p * math.log2(p)
+				has[t] = hp
+				h -= hp
 	
 		if h < th: low_H_count += 1
 	
@@ -80,4 +100,10 @@ for w in W:
 	cf, tf = entropy_fast(seq, w, 1)
 	assert(cs == cf)
 	print(tf / ts)
-
+"""
+	atf = tf
+	for i in range(49):
+		cf, tf = entropy_fast(seq, w, 1)
+		atf += tf
+	print((atf/50) / ts)
+"""
