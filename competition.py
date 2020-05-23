@@ -37,30 +37,29 @@ def entropy_fast(seq, w, th):
 	t0 = time.perf_counter()
 	low_H_count = 0
 	
-	a, c, g, t = 0, 0, 0, 0
-	for i in range(len(seq) - w + 1):
-		nt = seq[i]
-		if   nt == 'A': a += 1
-		elif nt == 'C': c += 1
-		elif nt == 'G': g += 1
-		elif nt == 'T': t += 1
-		if i < w:		# window not full
-			continue
+	num = {"A":0,"C":0,"G":0,"T":0}
+	for i in range(w):
+		num[seq[i]] += 1
+	for i in range(w,len(seq) - w + 1):
+		num[seq[i]] += 1
 		# Adjust for nt leaving window
-		nt = seq[i - w]
-		if   nt == 'A': a -= 1
-		elif nt == 'C': c -= 1
-		elif nt == 'G': g -= 1
-		elif nt == 'T': t -= 1
+		num[seq[i - w]] -= 1
             
-		total = a + c + g + t
 		h = 0
-		pa, pc, pg, pt = a/total, c/total, g/total, t/total
+		a, c, g, t = num['A'], num['C'], num['G'], num['T']
 	
-		if a != 0: h -= pa * math.log2(pa)
-		if c != 0: h -= pc * math.log2(pc)
-		if g != 0: h -= pg * math.log2(pg)
-		if t != 0: h -= pt * math.log2(pt)
+		if a != 0: 
+			pa = a/w
+			h -= pa * math.log2(pa)
+		if c != 0: 
+			pc = c/w
+			h -= pc * math.log2(pc)
+		if g != 0: 
+			pg = g/w
+			h -= pg * math.log2(pg)
+		if t != 0: 
+			pt = t/w
+			h -= pt * math.log2(pt)
 	
 		if h < th: low_H_count += 1
 	

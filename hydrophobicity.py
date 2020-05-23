@@ -87,6 +87,7 @@ for name, seq in bt.read_fasta(arg.input):
         hd = computeHD(seq, i, arg.window, arg.method)
         if hd == None:
             continue
+        print(i, hd)
         if hd < 1:
             num_below += 1
     print(num_below)
