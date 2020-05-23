@@ -142,7 +142,7 @@ def entropy_fast(seq, w, th):
 	t1 = time.perf_counter()
 	return low_H_count, t1-t0
 
-random.seed(0)
+# random.seed(0)
 # create a random chromosome
 seq = []
 alph = ['A', 'C', 'G', 'T']
@@ -157,10 +157,10 @@ for w in W:
 	cf, tf = entropy_fast(seq, w, 1)
 	assert(cs == cf)
 	print(tf / ts)
+"""
 	atf = tf
 	for i in range(49):
 		cf, tf = entropy_fast(seq, w, 1)
 		atf += tf
 	print((atf/50) / ts)
-"""
 """
