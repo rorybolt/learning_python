@@ -42,11 +42,13 @@ def entropy_slow(seq, w, th):
 #		The parameters to "for" are evaluated every loop!
 #		Two for loops are used to avoid if i < w : continue
 #		It is faster to unwind the ha computation loop
+#	For window size > 4 it more probable that no nucleotide counts == 0
+#		Therefore it is faster to look up zero value than test for 0
 def entropy_fast(seq, w, th):
 	t0 = time.perf_counter()
 	low_H_count = 0
 	num = {"A":0,"C":0,"G":0,"T":0} # dictionary of observed counts
-	has = {"A":0,"C":0,"G":0,"T":0} # dictionary of computed HA values
+	has = {0:0} 			# dictionary of computed HA values
 
 	# build the first window
 	for i in range(w): num[seq[i]] += 1
@@ -57,35 +59,33 @@ def entropy_fast(seq, w, th):
 	# so this is unwound...
 	# check to see if we have already computed a HA value for a
 	# probability: if so, reuse, else compute and add to dictionary
+
 	a, c, g, t = num['A'], num['C'], num['G'], num['T']
-	if a != 0: 
-		if a in has: h -= has[a]
-		else:
-			p = a/w
-			hp = p * math.log2(p)
-			has[a] = hp
-			h -= hp
-	if c != 0: 
-		if c in has: h -= has[c]
-		else:
-			p = c/w
-			hp = p * math.log2(p)
-			has[c] = hp
-			h -= hp
-	if g != 0: 
-		if g in has: h -= has[g]
-		else:
-			p = g/w
-			hp = p * math.log2(p)
-			has[g] = hp
-			h -= hp
-	if t != 0: 
-		if t in has: h -= has[t]
-		else:
-			p = t/w
-			hp = p * math.log2(p)
-			has[t] = hp
-			h -= hp
+	if a in has: h -= has[a]	# cheaper on average than test for 0
+	else:
+		p = a/w
+		hp = p * math.log2(p)
+		has[a] = hp
+		h -= hp
+	if c in has: h -= has[c]	# cheaper on average than test for 0
+	else:
+		p = c/w
+		hp = p * math.log2(p)
+		has[c] = hp
+		h -= hp
+	if g in has: h -= has[g]	# cheaper on average than test for 0
+	else:
+		p = g/w
+		hp = p * math.log2(p)
+		has[g] = hp
+		h -= hp
+	if t in has: h -= has[t]	# cheaper on average than test for 0
+	else:
+		p = t/w
+		hp = p * math.log2(p)
+		has[t] = hp
+		h -= hp
+
 	if h < th: low_H_count += 1
 
 	# this surprised me... I measured a difference with the computation
@@ -109,34 +109,30 @@ def entropy_fast(seq, w, th):
 		# probability: if so, reuse, else compute and add to dictionary
 		
 		a, c, g, t = num['A'], num['C'], num['G'], num['T']
-		if a != 0: 
-			if a in has: h -= has[a]
-			else:
-				p = a/w
-				hp = p * math.log2(p)
-				has[a] = hp
-				h -= hp
-		if c != 0: 
-			if c in has: h -= has[c]
-			else:
-				p = c/w
-				hp = p * math.log2(p)
-				has[c] = hp
-				h -= hp
-		if g != 0: 
-			if g in has: h -= has[g]
-			else:
-				p = g/w
-				hp = p * math.log2(p)
-				has[g] = hp
-				h -= hp
-		if t != 0: 
-			if t in has: h -= has[t]
-			else:
-				p = t/w
-				hp = p * math.log2(p)
-				has[t] = hp
-				h -= hp
+		if a in has: h -= has[a]	# cheaper than test for 0
+		else:
+			p = a/w
+			hp = p * math.log2(p)
+			has[a] = hp
+			h -= hp
+		if c in has: h -= has[c]	# cheaper than test for 0
+		else:
+			p = c/w
+			hp = p * math.log2(p)
+			has[c] = hp
+			h -= hp
+		if g in has: h -= has[g]	# cheaper than test for 0
+		else:
+			p = g/w
+			hp = p * math.log2(p)
+			has[g] = hp
+			h -= hp
+		if t in has: h -= has[t]	# cheaper than test for 0
+		else:
+			p = t/w
+			hp = p * math.log2(p)
+			has[t] = hp
+			h -= hp
 
 		if h < th: low_H_count += 1
 	t1 = time.perf_counter()
@@ -158,9 +154,19 @@ for w in W:
 	assert(cs == cf)
 	print(tf / ts)
 """
+	print("average 1")
 	atf = tf
 	for i in range(99):
 		cf, tf = entropy_fast(seq, w, 1)
+		atf += tf
+	print((atf/100) / ts)
+	cf, tf = entropy_fast2(seq, w, 1)
+	print(tf / ts)
+	assert(cs == cf)
+	print("average 2")
+	atf = tf
+	for i in range(99):
+		cf, tf = entropy_fast2(seq, w, 1)
 		atf += tf
 	print((atf/100) / ts)
 """
