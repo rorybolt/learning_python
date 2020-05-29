@@ -14,8 +14,8 @@ parser = argparse.ArgumentParser(
         description='Computes optimal pairwise alignment between two sequences.')
 
 # required arguments
-#parser.add_argument('--input', required=True, type=str,
-#        metavar='<str>', help='fasta file')
+parser.add_argument('--file', required=True, type=str,
+        metavar='<str>', help='fasta file')
 
 # optional arguments with default parameters
 parser.add_argument('--match', required=False, type=int, default=2,
@@ -133,36 +133,54 @@ def alignment_string(aligned1, aligned2):
     return ''.join(alignment_string), idents, gaps, mismatches
 
 
-
-
+# Test case from:
+# https://web.stanford.edu/class/cs262/presentations/lecture2.pdf
 seq1     = "CTATCACCTGACCTCCAGGCCGATGCCCCTTCCGGC"
 seq2     = "GCGAGTTCATCTATCACGACCGCGGTCG"
 
-print("seq1: ",seq1)
-print("seq2: ",seq2)
-
-# Allow space for gap in the scoring matrix (e.g. dimension+1)
-rows = len(seq1) + 1
-cols = len(seq2) + 1
-
-# Initialize the scoring matrix.
-score_matrix, start_pos = create_score_matrix(rows, cols)
-
-# Find the optimal path through the scoring matrix.
-# This gives the optimal local alighnment
-pos1, aligned1, pos2, aligned2 = traceback(score_matrix, start_pos)
-
-# Print in BLAST style format...
-alignment, idents, gaps, mismatches = alignment_string(aligned1, aligned2)
-slen = len(aligned1)
-print(f' Score = {(idents * arg.match)+(mismatches * arg.mismatch)+(gaps * arg.gap)}')  
-print(f' Identities = {idents}/{slen} ({idents/slen:.1%}), Gaps = {gaps}/{slen} ({gaps/slen:.1%})')
-print()
-for i in range(0, slen, 60):
-    slice1 = aligned1[i:i+60]
-    slice2 = aligned2[i:i+60]
-    print(f'Query  {pos1+i+1:<4}  {slice1}  {pos1+i+len(slice1):<4}')
-    print(f'             {alignment[i:i+60]}')
-    print(f'Sbjct  {pos2+i+1:<4}  {slice2}  {pos2+i+len(slice2):<4}')
+# Format taken from:
+# http://resources.qiagenbioinformatics.com/manuals/clcgenomicsworkbench/650/Explanation_BLAST_output.html#fig:ncbiblasttable
+#  Score = 22
+#  Identities = 15/23 (65.2%), Gaps = 6/23 (26.1%)
+# 
+# Query  1     CTATCACCTGACCTCCAGG-CCG  23  
+#              :||||||  ||||:|  || | |
+# Sbjct  11    ATATCAC--GACCGC--GGTC-G  33  
 
 
+#print("seq1: ",seq1)
+#print("seq2: ",seq2)
+
+seq1 = None
+for name2,seq2 in biotools.read_fasta(arg.file):
+    if seq1 == None:
+        seq1 = seq2
+        name1 = name2
+        print('Query: ',name1)
+        continue
+    # Allow space for gap in the scoring matrix (e.g. dimension+1)
+    rows = len(seq1) + 1
+    cols = len(seq2) + 1
+    
+    # Initialize the scoring matrix.
+    score_matrix, start_pos = create_score_matrix(rows, cols)
+    
+    # Find the optimal path through the scoring matrix.
+    # This gives the optimal local alighnment
+    pos1, aligned1, pos2, aligned2 = traceback(score_matrix, start_pos)
+    
+    # Print in BLAST style format...
+    alignment, idents, gaps, mismatches = alignment_string(aligned1, aligned2)
+    slen = len(aligned1)
+    print("Sbjct: ",name2)
+    print(f' Score = {(idents * arg.match)+(mismatches * arg.mismatch)+(gaps * arg.gap)}')  
+    print(f' Identities = {idents}/{slen} ({idents/slen:.1%}), Gaps = {gaps}/{slen} ({gaps/slen:.1%})')
+    print()
+    for i in range(0, slen, 60):
+        slice1 = aligned1[i:i+60]
+        slice2 = aligned2[i:i+60]
+        print(f'Query  {pos1+i+1:<4}  {slice1}  {pos1+i+len(slice1):<4}')
+        print(f'             {alignment[i:i+60]}')
+        print(f'Sbjct  {pos2+i+1:<4}  {slice2}  {pos2+i+len(slice2):<4}')
+    print()
+        
