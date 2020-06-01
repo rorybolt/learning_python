@@ -71,6 +71,7 @@ def next_move(score_matrix, x, y):
     diag_score = score_matrix[x - 1][y - 1]
     up_score   = score_matrix[x - 1][y]
     left_score = score_matrix[x][y - 1]
+
     # diag move is prefered for ties....
     if diag_score >= up_score and diag_score >= left_score:
         if diag_score != 0: return diag
@@ -108,7 +109,7 @@ def traceback(score_matrix, start_pos):
         move = next_move(score_matrix, x, y)
 
     aligned1.append(seq1[x - 1])
-    aligned2.append(seq1[y - 1])
+    aligned2.append(seq2[y - 1])
 
     return x-1,''.join(reversed(aligned1)), y-1,''.join(reversed(aligned2))
 
